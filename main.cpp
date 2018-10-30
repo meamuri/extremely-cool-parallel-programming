@@ -13,8 +13,6 @@
 const int N = 10; //Размер вектора
 int main(int arg0, char * arg1[]) {
 	int rank,          //Ранг процесса
-		*buffer,       //Буфер
-		buffsize = 1,  //Размер буфера
 		numprocs;      //Количество процессов
 
 	MPI_Init(&arg0,&arg1);
