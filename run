@@ -1,2 +1,3 @@
+#!/bin/zsh
 mpicc -o main main.cpp
 mpirun -np 2 ./main
