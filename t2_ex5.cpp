@@ -11,8 +11,6 @@
 //				 + (1 * 3 * 5 * x^7) / (2 * 4 * 6 * 7) +
 //				 + ...
 #include "mpi.h"
-// #include <string.h>
-// #include <cstdlib>
 #include <cmath>
 
 const float EPS = 0.0000001;
@@ -87,7 +85,7 @@ int main(int argc, char* argv[])
 		if (abs(x) <=1)
 		{
 			sendbuf_res[2*i]=sum_arcsin(x, EPS); // в четных ячейках - приближенное значение
-			sendbuf_res[2*i+1]=log(x+sqrt(x*x+1)); // в нечетных ячейках - точное значение
+			sendbuf_res[2*i+1]=asin(x); // в нечетных ячейках - точное значение
 		}
 	}
 	//собрать результаты вычислений	
