@@ -20,7 +20,7 @@ float sum_arcsin(float x, float eps)
 {
 	float xi = x;
 	float sum = 0;
-	int i=1;
+	int i=0;
 	while (abs(xi) > eps) {
 		sum += xi;
 		i++;
