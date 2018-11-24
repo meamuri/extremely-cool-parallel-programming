@@ -1,0 +1,3 @@
+#!/bin/zsh
+mpicc -o main t2_ex5.cpp
+mpirun -np 2 ./main
