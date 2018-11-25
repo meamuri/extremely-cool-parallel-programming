@@ -13,8 +13,6 @@
 #include "mpi.h"
 #include <cmath>
 
-const float EPS = 0.0000001;
-
 //функция приближённого вычисления arcsin(x)
 float sum_arcsin(float x, float eps)
 {
@@ -84,7 +82,7 @@ int main(int argc, char* argv[])
 		x=readbuf_x[i];
 		if (abs(x) <=1)
 		{
-			sendbuf_res[2*i]=sum_arcsin(x, EPS); // в четных ячейках - приближенное значение
+			sendbuf_res[2*i]=sum_arcsin(x, e); // в четных ячейках - приближенное значение
 			sendbuf_res[2*i+1]=asin(x); // в нечетных ячейках - точное значение
 		}
 	}
