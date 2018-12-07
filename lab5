@@ -1,0 +1,3 @@
+#!/bin/zsh
+mpicc -o t3_ex14_app lab5_t3_ex14.cpp 
+mpirun -np 2 ./t3_ex14_app
