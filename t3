@@ -1,4 +1,0 @@
-#!/bin/zsh
-# https://stackoverflow.com/questions/11852568/gcc-4-8-on-mac-os-x-10-8-throws-undefined-symbols-for-architecture-x86-64
-mpicc -o t3_app t3_ex7.cpp  -lstdc++
-mpirun -np 2 ./t3_app
