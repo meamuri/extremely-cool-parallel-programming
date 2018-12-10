@@ -3,7 +3,7 @@
 
 using namespace std;
 
-#define N 7 // Размерность матрицы
+#define N 10 // Размерность матрицы
 
 /**
  * УСЛОВИЕ ЗАДАЧИ:
@@ -11,12 +11,14 @@ using namespace std;
  * Создать описатель типа и использовать его при передаче данных
  * в качестве шаблона для следующего преобразования:
  *
- * первая строка, последний столбец, главная диагональ.
+ * первая строка, первый столбец, элементы над побочной диагональю.
  *
- * A11 A12 ... A1n
- * a21 A22 ... A2n
- * ... ... ... ...
- * an1 an2 ... Ann
+ * + + + + +
+ * + + + + -
+ * + + + - -
+ * + + - - -
+ * + - - - -
+ *
  */
 
 const int MASTER_ID = 0; // Нулевой процесс
@@ -34,26 +36,17 @@ int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    int blockSize = 2 * (N - 1);
-    int blockLengthArray[blockSize];  // Массив, содержащий число элементов в каждом блоке
-    int displacementArray[blockSize]; // Массив смещений каждого блока от начала размещения элемента нового типа
+    int blockLengthArray[N];  // Массив, содержащий число элементов в каждом блоке
+    int displacementArray[N]; // Массив смещений каждого блока от начала размещения элемента нового типа
 
     // Инициализация размеров блоков
-    blockLengthArray[0] = N;
-    for (int i = 1; i < blockSize; i++) {
-        blockLengthArray[i] = 1;
+    for (int i = 0; i < N; i++) {
+        blockLengthArray[i] = N - i;
+        displacementArray[i] = i * N;
     }
-
-    // Инициализация массива смещений
-    displacementArray[0] = 0;
-    for (int i = 2, row = 1; i < blockSize; i += 2, row++) {
-        displacementArray[i - 1] = row * (N + 1);
-        displacementArray[i] = N * (row + 1) - 1;
-    }
-    displacementArray[blockSize - 1] = N * N - 1;
 
     MPI_Datatype customMatrixType;
-    MPI_Type_indexed(blockSize, blockLengthArray, displacementArray, MPI_INT, &customMatrixType);
+    MPI_Type_indexed(N, blockLengthArray, displacementArray, MPI_INT, &customMatrixType);
     MPI_Type_commit(&customMatrixType);
 
     // Все элементы матрицы равны рангу текущего процесса
@@ -78,9 +71,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-/**
- * Функция для печати матрицы и ее описания
- */
 void printMatrix(int matrix[N][N], string description) {
     cout << description << endl;
     for (int i = 0; i < N; i++) {

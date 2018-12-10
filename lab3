@@ -1,4 +1,4 @@
 #!/bin/zsh
 
 mpicc -o t4_ex7_app lab3_t4_ex7.cpp -lstdc++
-mpirun -np 2 ./t4_ex7_app
+mpirun -np 7 ./t4_ex7_app
