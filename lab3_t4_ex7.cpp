@@ -1,12 +1,4 @@
-#include <iostream>
-#include <mpi.h>
-
-using namespace std;
-
-#define N 10 // Размерность матрицы
-
 /**
- * УСЛОВИЕ ЗАДАЧИ:
  *
  * Создать описатель типа и использовать его при передаче данных
  * в качестве шаблона для следующего преобразования:
@@ -21,11 +13,14 @@ using namespace std;
  *
  */
 
-const int MASTER_ID = 0; // Нулевой процесс
-const int WORKER_ID = 1;
+#include <iostream>
+#include <mpi.h>
 
-const string BEFORE_MATRIX_MESSAGE = "Matrix before:";
-const string AFTER_MATRIX_MESSAGE = "Matrix after:";
+using namespace std;
+
+const N = 10;
+const int MASTER_ID = 0;
+const int WORKER_ID = 1;
 
 void printMatrix(int matrix[N][N], string message);
 
@@ -58,12 +53,16 @@ int main(int argc, char *argv[]) {
     }
 
     if (rank == MASTER_ID) {
+        //отправляем адрес буфера, кол-во эл-тов в буфере, тип пересылаемого объекта, ранг процесса получателя, тег сообщения, коммуникатор
         MPI_Send(&matrix[0][0], 1, customMatrixType, WORKER_ID, tag, MPI_COMM_WORLD);
     } else if (rank == WORKER_ID) {
-        printMatrix(matrix, BEFORE_MATRIX_MESSAGE);
+        //печать матрицы до изменения
+        printMatrix(matrix, "Matrix before:");
         MPI_Status status;
+        //принимаем адрес буфера, кол-во эл-тов в буфере, тип пересылаемого объекта, ранг источника, тег сообщения, коммуникатор, статус обмена
         MPI_Recv(&matrix[0][0], 1, customMatrixType, MASTER_ID, tag, MPI_COMM_WORLD, &status);
-        printMatrix(matrix, AFTER_MATRIX_MESSAGE);
+        //печать матрицы после изменения
+        printMatrix(matrix, "Matrix after:");
     }
 
     MPI_Type_free(&customMatrixType);
