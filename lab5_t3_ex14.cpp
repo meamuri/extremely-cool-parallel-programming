@@ -1,80 +1,71 @@
-// t3_ex14. 
-// Каждый процесс заполняет свой массив размером n
-// случайными числами. Результат -- вектор размером n,
-// каждый элемент которого получен по правилу 
-// определенной в задаче функции. 
-// Функция задачи 7: найти количество положительных.
+/**
+ *
+ * Каждый процесс заполняет свой массив размера n случайными числами.
+ * Для решения задачи использовать операции приведения с собственной функцией для решения задачи.
+ * Результат - вектор размера n, каждый элемент которого получен по следующему правилу:
+ *
+ * Найти количество нулей
+ */
 
-#include <mpi.h>
-#include <list>
-#include <random>
 #include <iostream>
-#include <string>
+#include "mpi.h"
+
 using namespace std;
 
+const int N = 4;
 
-// Размерность массива
-const int n = 10;
+const int MASTER_ID = 0;
 
+void findZeroCount(int *in, int *zeroCount, int *len, MPI_Datatype *datatype);
 
-//находим максимальный отрицательный
-void FindMax(int *in, int *max, int *len, MPI_Datatype *datatypes)
-{
-	for (int i=0; i<*len; i++)
-	{
-			if (max[i] >= 0)
-				if (in[i] < 0)
-					max[i] = in[i];
-				else
-					max[i] = 0;
-			else
-				if ((in[i] < 0) && (in[i] > max[i]))
-					max[i] = in[i];
-	}
+int main(int argc, char *argv[]) {
+
+    int rank, processCount;
+    int *arr = new int[N];
+
+    MPI_Init(&argc, &argv);
+    MPI_Comm_size(MPI_COMM_WORLD, &processCount);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // Генерация и печать массива для текущего процесса
+    srand(time(0) + rank * 10);
+    for (int i = 0; i < N; i++) {
+        arr[i] = -N / 2 + rand() % (2 * N);
+    }
+
+    int *recvbuf = new int[N * processCount];
+    MPI_Gather(arr, N, MPI_INT, recvbuf, N, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    if (rank == MASTER_ID) {
+        for (int i = 0; i < processCount; i++) {
+            cout << "Process " << i << ":\t";
+            for (int j = 0; j < N; j++) {
+                cout << recvbuf[N * i + j] << "\t";
+            }
+            cout << endl;
+        }
+    }
+
+ 	int *result = new int[N];
+    MPI_Op operation;
+    MPI_Op_create((MPI_User_function *) findZeroCount, 0, &operation);
+    MPI_Reduce(arr, result, N, MPI_INT, operation, 0, MPI_COMM_WORLD);
+
+    if (rank == MASTER_ID) {
+        cout << "Result:\t\t";
+        for (int i = 0; i < N; i++)
+            cout << result[i] << "\t";
+        cout << endl;
+    }
+
+    MPI_Op_free(&operation);
+    MPI_Finalize();
+    return 0;
 }
 
-
-
-int _tmain(int argc, char* argv[])
-{
-	// Инициализация MPI
-	MPI_Init(&argc,&argv);
-
-	int processCount = 0;
-	MPI_Comm_size(MPI_COMM_WORLD,&processCount);
-
-	if (processCount>1)
-	{
-		int *arr = new int[n];
-		
-		int rank = 0;
-		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-		string str = "Process " + to_string(rank) + " generated elements: ";
-
-		// Заполнение массива и его вывод на экран.
-		for (int i=0; i<n; i++)
-		{
-			arr[i]=-100+ rand()%300;
-			str+= to_string(arr[i]) + " ";
-		}
-		printf("%s\n",str.c_str());
-
-		//инициализируем нашу операцию для редукции
-		MPI_Op operation;
-		MPI_Op_create((MPI_User_function*)FindMax,0,&operation);
-		int *max = new int[n];
-		MPI_Reduce(arr,max,n,MPI_INT,operation,0,MPI_COMM_WORLD);
-
-		if (rank==0)
-		{
-			string resultString = "Result: ";
-			for ( int j = 0; j < n; j++)
-				resultString += to_string(max[j]) + " ";
-			printf("%s\n",resultString.c_str());
+void findZeroCount(int *in, int *zeroCount, int *len, MPI_Datatype *datatype) {
+    for (int i=0; i<*len; i++) {
+ 		if (in[i] == 0) {
+			zeroCount[i]++;
 		}
 	}
-
-	MPI_Finalize();
-	return 0;
 }

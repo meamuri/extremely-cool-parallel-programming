@@ -19,5 +19,5 @@ mpirun -np 2 ./main
  * t2 is 5ex    -> Done
  * t3 is 7ex    -> Done
  * t4 is 3ex    -> Done
- * t5 is 14ex
+ * t5 is 14ex   -> WIP
  
